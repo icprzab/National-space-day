@@ -1,19 +1,11 @@
 import * as THREE from "three";
-// import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.164.1/three.module.js";
-import { GLTFLoader } from "./jsm/loaders/GLTFLoader.js";
-import { OrbitControls } from "./jsm/Addons.js";
-// import earthTexture from "./assets/earth.jpg";
-const earthTexture = new Image();
-earthTexture.src = "./assets/earth.jpg";
-const sunTexture = new Image();
-sunTexture.src = "./assets/sun.jpg";
-
-// import sunTexture from "./assets/sun.jpg";
-import { FontLoader } from "./jsm/loaders/FontLoader.js";
-import { TextGeometry } from "../jsm/geometries/TextGeometry.js";
-import { EffectComposer } from "../jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "../jsm/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "../jsm/postprocessing/UnrealBloomPass.js";
+import { GLTFLoader } from "./National-space-day/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from ".National-space-day/jsm/Addons.js";
+import { FontLoader } from "./National-space-day/jsm/loaders/FontLoader.js";
+import { TextGeometry } from "./National-space-day/jsm/geometries/TextGeometry.js";
+import { EffectComposer } from "./National-space-day/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "./National-space-day/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "./National-space-day/jsm/postprocessing/UnrealBloomPass.js";
 const container = document.createElement("div");
 document.body.appendChild(container);
 const earthGroup = new THREE.Group();
