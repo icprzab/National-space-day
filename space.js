@@ -1,11 +1,11 @@
 import * as THREE from "three";
-import { GLTFLoader } from "./tree/main/jsm/loaders/GLTFLoader.js";
-import { OrbitControls } from "./tree/main/jsm/Addons.js";
-import { FontLoader } from "./tree/main/jsm/loaders/FontLoader.js";
-import { TextGeometry } from "./tree/main/jsm/geometries/TextGeometry.js";
-import { EffectComposer } from "./tree/main/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "./tree/main/jsm/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "./tree/main/jsm/postprocessing/UnrealBloomPass.js";
+import { GLTFLoader } from "../jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "../jsm/Addons.js";
+import { FontLoader } from "../jsm/loaders/FontLoader.js";
+import { TextGeometry } from "../jsm/geometries/TextGeometry.js";
+import { EffectComposer } from "../jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "../jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "../jsm/postprocessing/UnrealBloomPass.js";
 const container = document.createElement("div");
 document.body.appendChild(container);
 const earthGroup = new THREE.Group();
