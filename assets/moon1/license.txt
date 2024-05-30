@@ -1,0 +1,11 @@
+Model Information:
+* title:	The Moon Sharp
+* source:	https://sketchfab.com/3d-models/the-moon-sharp-1bc61d056d934523a3de63d713ce3377
+* author:	kongle (https://sketchfab.com/minecraftnorge)
+
+Model License:
+* license type:	CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)
+* requirements:	Author must be credited. Modified versions must have the same license. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "The Moon Sharp" (https://sketchfab.com/3d-models/the-moon-sharp-1bc61d056d934523a3de63d713ce3377) by kongle (https://sketchfab.com/minecraftnorge) licensed under CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)
