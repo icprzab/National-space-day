@@ -32,7 +32,7 @@ renderer2.shadowMap.enabled = true; // 启用阴影映射
 renderer2.shadowMap.type = THREE.PCFSoftShadowMap;
 
 fontLoader.load(
-  "../assets/Frutiger LT Pro 55 Roman_Italic.json",
+  "./assets/Frutiger LT Pro 55 Roman_Italic.json",
   // onLoad回调
   (font) => {
     const textGeometry = new TextGeometry("NATIONAL" + " SPACE " + "DAY ", {
@@ -142,7 +142,7 @@ sun.position.set(-400, 250, 250);
 scene2.add(sun);
 
 const loader = new GLTFLoader();
-loader.load("../assets/ufo/scene.gltf", function (gltf) {
+loader.load("./assets/ufo/scene.gltf", function (gltf) {
   let ufo = gltf.scene;
   ufo.traverse((child) => {
     if (child.isMesh) {
@@ -157,7 +157,7 @@ loader.load("../assets/ufo/scene.gltf", function (gltf) {
   ufo.scale.set(scale, scale, scale);
   ufoGroup.add(ufo);
 });
-loader.load("../assets/rocket/scene.gltf", function (gltf) {
+loader.load("./assets/rocket/scene.gltf", function (gltf) {
   let rocket = gltf.scene;
   rocket.traverse((child) => {
     if (child.isMesh) {
@@ -173,7 +173,7 @@ loader.load("../assets/rocket/scene.gltf", function (gltf) {
   rocketGroup.add(rocket);
 });
 
-loader.load("../assets/meteorite/scene.gltf", function (gltf) {
+loader.load("./assets/meteorite/scene.gltf", function (gltf) {
   let meteorite = gltf.scene;
   meteorite.traverse((child) => {
     if (child.isMesh) {
@@ -225,7 +225,7 @@ loader.load("../assets/meteorite/scene.gltf", function (gltf) {
   }
 });
 
-loader.load("../assets/meteorite2/scene.gltf", function (gltf) {
+loader.load("./assets/meteorite2/scene.gltf", function (gltf) {
   let meteorite2 = gltf.scene;
   meteorite2.traverse((child) => {
     if (child.isMesh) {
@@ -299,7 +299,7 @@ function animate4() {
 
 animate4();
 
-loader.load("../assets/moon/scene.gltf", function (gltf) {
+loader.load("./assets/moon/scene.gltf", function (gltf) {
   let moon = gltf.scene;
   moon.traverse((child) => {
     if (child.isMesh) {
@@ -367,7 +367,7 @@ starGeo.setAttribute(
 );
 
 // 创建星星系统的网格
-let sprite = new THREE.TextureLoader().load("../assets/star.png");
+let sprite = new THREE.TextureLoader().load("./assets/star.png");
 let starMaterial = new THREE.PointsMaterial({
   color: 0xaaaaaa,
   size: 0.7,
