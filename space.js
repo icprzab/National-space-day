@@ -6,15 +6,14 @@ import { TextGeometry } from "./jsm/geometries/TextGeometry.js";
 import { EffectComposer } from "./jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "./jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "./jsm/postprocessing/UnrealBloomPass.js";
-const container = document.createElement("div");
-document.body.appendChild(container);
+
 const earthGroup = new THREE.Group();
 const rocketGroup = new THREE.Group();
 const moonGroup = new THREE.Group();
 const ufoGroup = new THREE.Group();
-const scene2 = new THREE.Scene();
+const scene = new THREE.Scene();
 const fontLoader = new FontLoader();
-const camera2 = new THREE.PerspectiveCamera(
+const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight,
   1,
@@ -22,15 +21,22 @@ const camera2 = new THREE.PerspectiveCamera(
 );
 
 const canvas = document.querySelector(".webgl");
-const renderer2 = new THREE.WebGLRenderer({ canvas });
+const renderer = new THREE.WebGLRenderer({ canvas });
 
-renderer2.outputColorSpace = THREE.SRGBColorSpace;
-renderer2.setSize(window.innerWidth, window.innerHeight);
-renderer2.setClearColor(0x000000);
-renderer2.setPixelRatio(window.devicePixelRatio);
-renderer2.shadowMap.enabled = true; // 启用阴影映射
-renderer2.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x000000);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true; // 启用阴影映射
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+window.addEventListener("resize", function () {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+document.body.appendChild(renderer.domElement);
 fontLoader.load(
   "./assets/Frutiger LT Pro 55 Roman_Italic.json",
   // onLoad回调
@@ -58,11 +64,9 @@ fontLoader.load(
 
     const text = new THREE.Mesh(textGeometry, textMaterial);
     const cameraDirection = new THREE.Vector3();
-    camera2.getWorldDirection(cameraDirection);
-    text.position
-      .copy(camera2.position)
-      .add(cameraDirection.multiplyScalar(85));
-    text.lookAt(camera2.position);
+    camera.getWorldDirection(cameraDirection);
+    text.position.copy(camera.position).add(cameraDirection.multiplyScalar(85));
+    text.lookAt(camera.position);
     const positionAttribute = textGeometry.attributes.position;
     const vertex = new THREE.Vector3();
     const curveAmount = 0.05;
@@ -76,9 +80,9 @@ fontLoader.load(
     }
 
     textGeometry.attributes.position.needsUpdate = true;
-    scene2.add(text);
+    scene.add(text);
 
-    const renderScene = new RenderPass(scene2, camera2);
+    const renderScene = new RenderPass(scene, camera);
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       1,
@@ -88,7 +92,7 @@ fontLoader.load(
     bloomPass.threshold = 1;
     bloomPass.strength = 0.165; //intensity of glow
     bloomPass.radius = 0.2;
-    const bloomComposer = new EffectComposer(renderer2);
+    const bloomComposer = new EffectComposer(renderer);
 
     bloomComposer.setSize(window.innerWidth, window.innerHeight);
     bloomComposer.renderToScreen = true;
@@ -98,8 +102,8 @@ fontLoader.load(
     let fadeInDuration = 3700; // Duration of fade-in in milliseconds
     let startTime = performance.now();
 
-    function animate3() {
-      requestAnimationFrame(animate3);
+    function animateFadeIn() {
+      requestAnimationFrame(animateFadeIn);
       bloomComposer.render();
 
       // Calculate elapsed time
@@ -111,20 +115,11 @@ fontLoader.load(
         textMaterial.opacity = 1; // Ensure opacity is set to 1 after fade-in
       }
     }
-    animate3();
+    animateFadeIn();
   }
 );
 
-window.addEventListener("resize", function () {
-  camera2.aspect = window.innerWidth / window.innerHeight;
-  camera2.updateProjectionMatrix();
-  renderer2.setSize(window.innerWidth, window.innerHeight);
-});
-
-document.body.appendChild(renderer2.domElement);
-
 const textureLoader = new THREE.TextureLoader();
-
 const earthGeo = new THREE.SphereGeometry(18, 30, 30);
 const earthMat = new THREE.MeshStandardMaterial({
   map: textureLoader.load("./assets/earth.jpg"),
@@ -139,10 +134,10 @@ const sunMat = new THREE.MeshStandardMaterial({
 const sun = new THREE.Mesh(sunGeo, sunMat);
 sun.castShadow = true;
 sun.position.set(-400, 250, 250);
-scene2.add(sun);
+scene.add(sun);
 
-const loader = new GLTFLoader();
-loader.load("./assets/ufo/scene.gltf", function (gltf) {
+const gltfLoader = new GLTFLoader();
+gltfLoader.load("./assets/ufo/scene.gltf", function (gltf) {
   let ufo = gltf.scene;
   ufo.traverse((child) => {
     if (child.isMesh) {
@@ -157,7 +152,7 @@ loader.load("./assets/ufo/scene.gltf", function (gltf) {
   ufo.scale.set(scale, scale, scale);
   ufoGroup.add(ufo);
 });
-loader.load("./assets/rocket/scene.gltf", function (gltf) {
+gltfLoader.load("./assets/rocket/scene.gltf", function (gltf) {
   let rocket = gltf.scene;
   rocket.traverse((child) => {
     if (child.isMesh) {
@@ -173,7 +168,7 @@ loader.load("./assets/rocket/scene.gltf", function (gltf) {
   rocketGroup.add(rocket);
 });
 
-loader.load("./assets/meteorite/scene.gltf", function (gltf) {
+gltfLoader.load("./assets/meteorite/scene.gltf", function (gltf) {
   let meteorite = gltf.scene;
   meteorite.traverse((child) => {
     if (child.isMesh) {
@@ -221,11 +216,11 @@ loader.load("./assets/meteorite/scene.gltf", function (gltf) {
       }
     });
 
-    scene2.add(newMeteorite);
+    scene.add(newMeteorite);
   }
 });
 
-loader.load("./assets/meteorite2/scene.gltf", function (gltf) {
+gltfLoader.load("./assets/meteorite2/scene.gltf", function (gltf) {
   let meteorite2 = gltf.scene;
   meteorite2.traverse((child) => {
     if (child.isMesh) {
@@ -277,14 +272,15 @@ loader.load("./assets/meteorite2/scene.gltf", function (gltf) {
       }
     });
 
-    scene2.add(newMeteorite);
+    scene.add(newMeteorite);
   }
 });
 
-function animate4() {
-  requestAnimationFrame(animate4);
+function animateRotate() {
+  //隕石旋轉
+  requestAnimationFrame(animateRotate);
 
-  scene2.traverse((object) => {
+  scene.traverse((object) => {
     if (object.isMesh || object.rotationSpeed) {
       if (object.rotationSpeed) {
         object.rotation.x += object.rotationSpeed.x;
@@ -293,13 +289,17 @@ function animate4() {
       }
     }
   });
-
-  renderer2.render(scene2, camera2);
+  rocketGroup.rotation.z += 0.0035; // 火箭绕地球旋转的速度
+  moonGroup.rotation.x += 0.0005; // 月亮绕地球旋转的速度
+  earthGroup.rotation.z += 0.001;
+  sun.rotation.x -= 0.0006;
+  ufoGroup.rotation.y -= 0.007;
+  renderer.render(scene, camera);
 }
 
-animate4();
+animateRotate();
 
-loader.load("./assets/moon/scene.gltf", function (gltf) {
+gltfLoader.load("./assets/moon/scene.gltf", function (gltf) {
   let moon = gltf.scene;
   moon.traverse((child) => {
     if (child.isMesh) {
@@ -315,24 +315,14 @@ loader.load("./assets/moon/scene.gltf", function (gltf) {
 
 earthGroup.add(rocketGroup);
 earthGroup.add(moonGroup);
-scene2.add(ufoGroup);
-scene2.add(earthGroup);
+scene.add(ufoGroup);
+scene.add(earthGroup);
 
-const controls = new OrbitControls(camera2, renderer2.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableZoom = false;
-camera2.position.set(-45, 70, 70);
+camera.position.set(-45, 70, 70);
 
 controls.update();
-
-function animate() {
-  rocketGroup.rotation.z += 0.0035; // 火箭绕地球旋转的速度
-  moonGroup.rotation.x += 0.0005; // 月亮绕地球旋转的速度
-  earthGroup.rotation.z += 0.001;
-  sun.rotation.x -= 0.0006;
-  ufoGroup.rotation.y -= 0.007;
-  renderer2.render(scene2, camera2);
-}
-renderer2.setAnimationLoop(animate);
 
 // 创建一个 BufferGeometry
 let starGeo = new THREE.BufferGeometry();
@@ -366,25 +356,23 @@ starGeo.setAttribute(
   new THREE.Float32BufferAttribute(accelerations, 1)
 );
 
-// 创建星星系统的网格
-let sprite = new THREE.TextureLoader().load("./assets/star.png");
-let starMaterial = new THREE.PointsMaterial({
-  color: 0xaaaaaa,
-  size: 0.7,
-  map: sprite,
-});
-let stars = new THREE.Points(starGeo, starMaterial);
-scene2.add(stars);
-
 const pointLight = new THREE.PointLight(0xffffff, 80000, 500000);
 pointLight.position.set(-100, 70, 80);
-scene2.add(pointLight);
+scene.add(pointLight);
 
 const pointLight2 = new THREE.PointLight(0xffffff, 10000, 500000);
 
-scene2.add(pointLight2);
+scene.add(pointLight2);
 sun.lookAt(earth.position);
-function animate2() {
+let starMaterial = new THREE.PointsMaterial({
+  color: 0xaaaaaa,
+  size: 0.6,
+  map: textureLoader.load("./assets/star.png"),
+});
+
+let stars = new THREE.Points(starGeo, starMaterial);
+scene.add(stars);
+function animateStar() {
   const positions = starGeo.attributes.position.array;
   const velocities = starGeo.attributes.velocity.array;
   const accelerations = starGeo.attributes.acceleration.array;
@@ -392,8 +380,8 @@ function animate2() {
   // 获取摄像机的位置向量和朝向
   const cameraPosition = new THREE.Vector3();
   const cameraDirection = new THREE.Vector3();
-  camera2.getWorldPosition(cameraPosition);
-  camera2.getWorldDirection(cameraDirection);
+  camera.getWorldPosition(cameraPosition);
+  camera.getWorldDirection(cameraDirection);
 
   for (let i = 0; i < positions.length; i += 3) {
     velocities[i / 3] += accelerations[i / 3];
@@ -408,35 +396,8 @@ function animate2() {
   starGeo.attributes.position.needsUpdate = true;
   stars.rotation.y -= 0.001;
 
-  requestAnimationFrame(animate2);
-  renderer2.render(scene2, camera2);
+  requestAnimationFrame(animateStar);
+  renderer.render(scene, camera);
 }
 
-animate2();
-
-// 圓形3d
-// const scene = new THREE.Scene();
-// const geometry = new THREE.SphereGeometry(3,64,64)
-// const material = new THREE.MeshStandardMaterial({color:"#ff0000"})
-// const mesh = new THREE.Mesh(geometry,material)
-// scene.add(mesh)
-
-// const light = new THREE.PointLight(0xffffff, 150, 150)
-// light.position.set(0, 6, 6)
-// scene.add(light)
-
-// const sizes={
-//     width:window.innerWidth,
-//     height:window.innerHeight
-// }
-
-// const camera = new THREE.PerspectiveCamera(45,sizes.width/sizes.height, 800 / 600)
-// camera.position.z = 20
-// scene.add(camera)
-
-// const canvas = document.querySelector('.webgl')
-// const renderer = new THREE.WebGLRenderer({canvas})
-// renderer.setSize(sizes.width,sizes.height)
-// renderer.render(scene,camera)
-
-// createApp(App).mount("#app");
+animateStar();
