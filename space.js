@@ -6,12 +6,11 @@ import { TextGeometry } from "./jsm/geometries/TextGeometry.js";
 import { EffectComposer } from "./jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "./jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "./jsm/postprocessing/UnrealBloomPass.js";
-
+const scene = new THREE.Scene();
 const earthGroup = new THREE.Group();
 const rocketGroup = new THREE.Group();
 const moonGroup = new THREE.Group();
 const ufoGroup = new THREE.Group();
-const scene = new THREE.Scene();
 const fontLoader = new FontLoader();
 const camera = new THREE.PerspectiveCamera(
   45,
@@ -22,7 +21,6 @@ const camera = new THREE.PerspectiveCamera(
 
 const canvas = document.querySelector(".webgl");
 const renderer = new THREE.WebGLRenderer({ canvas });
-
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000);
@@ -36,7 +34,11 @@ window.addEventListener("resize", function () {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-document.body.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableZoom = false;
+camera.position.set(-45, 70, 70);
+controls.update();
+
 fontLoader.load(
   "./assets/Frutiger LT Pro 55 Roman_Italic.json",
   // onLoad回调
@@ -75,7 +77,6 @@ fontLoader.load(
       const x = vertex.x;
       const angle = x * curveAmount;
       vertex.z += Math.cos(angle) * 6;
-
       positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
     }
 
@@ -147,11 +148,11 @@ gltfLoader.load("./assets/ufo/scene.gltf", function (gltf) {
   });
 
   ufo.position.set(100, 0, 0);
-
   const scale = 0.04; // 放大倍数
   ufo.scale.set(scale, scale, scale);
   ufoGroup.add(ufo);
 });
+
 gltfLoader.load("./assets/rocket/scene.gltf", function (gltf) {
   let rocket = gltf.scene;
   rocket.traverse((child) => {
@@ -318,33 +319,35 @@ earthGroup.add(moonGroup);
 scene.add(ufoGroup);
 scene.add(earthGroup);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableZoom = false;
-camera.position.set(-45, 70, 70);
+const pointLight = new THREE.PointLight(0xffffff, 80000, 500000);
+pointLight.position.set(-100, 70, 80);
+scene.add(pointLight);
 
-controls.update();
+const pointLight2 = new THREE.PointLight(0xffffff, 10000, 500000);
 
-// 创建一个 BufferGeometry
-let starGeo = new THREE.BufferGeometry();
+scene.add(pointLight2);
+sun.lookAt(earth.position);
 
+let starMaterial = new THREE.PointsMaterial({
+  color: 0xaaaaaa,
+  size: 0.6,
+  map: textureLoader.load("./assets/star.png"),
+});
+let starGeo = new THREE.BufferGeometry(); // 创建一个 BufferGeometry
 // 定义顶点数组和属性
 const vertices = [];
 const velocities = [];
 const accelerations = [];
-
 for (let i = 0; i < 8000; i++) {
-  // 随机生成星星的位置
   vertices.push(
+    // 随机生成星星的位置
     Math.random() * 600 - 300,
     Math.random() * 600 - 300,
     Math.random() * 600 - 300
   );
-
-  // 设置初始速度和加速度
-  velocities.push(0);
+  velocities.push(0); // 设置初始速度和加速度
   accelerations.push(0.002);
 }
-
 // 将顶点数据设置到 BufferGeometry 中
 starGeo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
 starGeo.setAttribute(
@@ -355,23 +358,9 @@ starGeo.setAttribute(
   "acceleration",
   new THREE.Float32BufferAttribute(accelerations, 1)
 );
-
-const pointLight = new THREE.PointLight(0xffffff, 80000, 500000);
-pointLight.position.set(-100, 70, 80);
-scene.add(pointLight);
-
-const pointLight2 = new THREE.PointLight(0xffffff, 10000, 500000);
-
-scene.add(pointLight2);
-sun.lookAt(earth.position);
-let starMaterial = new THREE.PointsMaterial({
-  color: 0xaaaaaa,
-  size: 0.6,
-  map: textureLoader.load("./assets/star.png"),
-});
-
 let stars = new THREE.Points(starGeo, starMaterial);
 scene.add(stars);
+
 function animateStar() {
   const positions = starGeo.attributes.position.array;
   const velocities = starGeo.attributes.velocity.array;
